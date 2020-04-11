@@ -1,0 +1,719 @@
+#--------------/!\ Warning /!\ /!\ Warning /!\/!\ Warning /!\ /!\ Warning /!\--------------#
+#
+#EVERYTHING YOU WILL WRITE IN THIS FILE WILL BE ERASED ON NEW UPDATES
+#To set this plugin's options there is a config in /plugins/AntiBuild/config.yml
+#
+#Copyright Rules:
+#- Don't sell this plugin!
+#- You are free to share this plugin with anyone, but do not claim the #plugin as yours
+#
+#==========================================================================================#
+#
+#FOR BUG REPORTS, INFORMATIONS AND ANYTHING ELSE ABOUT THIS SKRIPT PLEASE DM ME ON SPIGOTMC
+#
+#I WON'T GIVE ANY SUPPORT FOR ERROR MESSAGES WHEN THE CODE WAS CHANGED!
+#
+#==========================================================================================#
+#
+#--------------/!\ Warning /!\ /!\ Warning /!\/!\ Warning /!\ /!\ Warning /!\--------------#
+
+
+
+
+
+
+
+
+
+
+options:
+	#If you edit this value you skript won't work anymore!
+	version: RELEASE 2.0
+
+every 10 minutes:
+	set {version} to "{@version}"
+	if {checkforupdates} is "true":
+		if text from "https://pastebin.com/raw/q1HR1E8m" is not "%{version}%":
+			send "&6A new update for Advanced AntiBuild was FOUND!" to CONSOLE
+			if {autoupdate} is "true":
+				send "&cUpdating Advanced AntiBuild plugin (Auto Update)..." to CONSOLE
+				file existance of "plugins/Skript/scripts/antibuild.sk" is false:
+					create file "plugins/Skript/scripts/antibuild.sk"
+				delete file "plugins/AntiBuild/messages.yml"
+				delete file "plugins/AntiBuild/config.yml"
+				download from "https://pastebin.com/raw/L94RuLbm" to "plugins/Skript/scripts/antibuild.sk"
+				wait 160 ticks
+				send "&aUpdate complete, reloading Advanced AntiBuild..." to CONSOLE
+				execute console command "/skript reload antibuild.sk"
+				wait 5 seconds
+				send "&aAdvanced AntiBuild update done, You are running latest version!" to CONSOLE
+				stop
+			else:
+				send "§4ERROR: &cCould not update Advanced AntiBuild due to autoupdates are disabled!" to CONSOLE
+				stop
+	else:
+		send "§4ERROR: &cCould not check for updates on Advanced AntiBuild due to check for updates are disabled!" to CONSOLE
+		stop
+
+on load:
+	wait a second
+	if {disabledworlds::*} is not set:
+		set {disabledworlds::*} to "world_nether"
+	set {version} to "{@version}"
+	file existance of "plugins/AntiBuild/config.yml" is false:
+		send "§4ERROR: §cCouldn't find file config.yml!" to CONSOLE
+		send "§eCreating file config.yml..." to CONSOLE
+		create file "plugins/AntiBuild/config.yml"
+		set "config.main.prefix" to "&8 ● &cAnti&4Build &8»" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.main.checkforupdates" to "true" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.main.autoupdate" to "true" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.main.enable-reload-command" to "false" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.main.config-seen" to "false" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.permissions.build-permission" to "antibuild.build" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.permissions.build-permission-others" to "antibuild.build.others" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.permissions.build-reload-permission" to "antibuild.build.reload" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.permissions.build-menu-permission" to "antibuild.build.menu" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.permissions.build-help-permission" to "antibuild.build.help" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.menu.menu-enabled" to "true" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.menu.gui-name" to "&8» &cAnti&4Build" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.menu.menu-sounds.enabled" to "true" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.menu.menu-sounds.high-pitch" to "true" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.menu.menu-background-item" to "gray stained glass pane" in yaml file "plugins/AntiBuild/config.yml"
+		set "config.menu.menu-back-item" to "paper" in yaml file "plugins/AntiBuild/config.yml"
+		send "§aThe file &2config&a.&2yml &awas sucessfully created :D" to CONSOLE
+	file existance of "plugins/AntiBuild/messages.yml" is false:
+		send "§4ERROR: §cCouldn't find file messages.yml!" to CONSOLE
+		send "§eCreating file messages.yml..." to CONSOLE
+		create file "plugins/AntiBuild/messages.yml"
+		set "messages.no-permission" to "&cYou don't have enough permission!" in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.only-players" to "&cOnly player's can use this command!" in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.never-seen-before" to "&cThis player was never seen before" in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.value-updated" to "&aValue updated sucessfully." in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.reload-command-disabled" to "&cThe reload command has been disabled! You can enable it in the configuration section." in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.reload-complete" to "&aAll data has been reloaded!" in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.chat-update" to "&aType the new value in the chat..." in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.build-enabled-self" to "&7Your buildmode has been &aenabled&7!" in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.build-disabled-self" to "&7Your buildmode has been &cdisabled&7!" in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.build-enabled-other" to "&7The buildmode of &a{_p} &7has been &aenabled&7!" in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.build-disabled-other" to "&7The buildmode of &c{_p} &7has been &cdisabled&7!" in yaml file "plugins/AntiBuild/messages.yml"
+		set "messages.world-is-disabled" to "&7This world has been disabled!" in yaml file "plugins/AntiBuild/messages.yml"
+		send "§aThe file &2messages&a.&2yml &awas sucessfully created :D" to CONSOLE
+	set {prefix} to single value "config.main.prefix" get of "plugins/AntiBuild/config.yml"
+	set {checkforupdates} to single value "config.main.checkforupdates" get of "plugins/AntiBuild/config.yml"
+	set {autoupdate} to single value "config.main.autoupdate" get of "plugins/AntiBuild/config.yml"
+	set {enable-reload-command} to single value "config.main.enable-reload-command" get of "plugins/AntiBuild/config.yml"
+	set {build-permission} to single value "config.permissions.build-permission" get of "plugins/AntiBuild/config.yml"
+	set {build-permission-others} to single value "config.permissions.build-permission-others" get of "plugins/AntiBuild/config.yml"
+	set {build-reload-permission} to single value "config.permissions.build-reload-permission" get of "plugins/AntiBuild/config.yml"
+	set {build-menu-permission} to single value "config.permissions.build-menu-permission" get of "plugins/AntiBuild/config.yml"
+	set {build-help-permission} to single value "config.permissions.build-help-permission" get of "plugins/AntiBuild/config.yml"
+	set {config-seen} to single value "config.main.config-seen" get of "plugins/AntiBuild/config.yml"
+	set {menu-enabled} to single value "config.menu.menu-enabled" get of "plugins/AntiBuild/config.yml"
+	set {gui-name} to single value "config.menu.gui-name" get of "plugins/AntiBuild/config.yml"
+	set {menu-sounds} to single value "config.menu.menu-sounds.enabled" get of "plugins/AntiBuild/config.yml"
+	set {high-pitch} to single value "config.menu.menu-sounds.high-pitch" get of "plugins/AntiBuild/config.yml"
+	set {menu-background-item} to single value "config.menu.menu-background-item" get of "plugins/AntiBuild/config.yml"
+	set {menu-back-item} to single value "config.menu.menu-back-item" get of "plugins/AntiBuild/config.yml"
+	set {no-permission} to single value "messages.no-permission" get of "plugins/AntiBuild/messages.yml"
+	set {only-players} to single value "messages.only-players" get of "plugins/AntiBuild/messages.yml"
+	set {never-seen-before} to single value "messages.never-seen-before" get of "plugins/AntiBuild/messages.yml"
+	set {value-updated} to single value "messages.value-updated" get of "plugins/AntiBuild/messages.yml"
+	set {reload-command-disabled} to single value "messages.reload-command-disabled" get of "plugins/AntiBuild/messages.yml"
+	set {reload-complete} to single value "messages.reload-complete" get of "plugins/AntiBuild/messages.yml"
+	set {chat-update} to single value "messages.chat-update" get of "plugins/AntiBuild/messages.yml"
+	set {build-enabled-self} to single value "messages.build-enabled-self" get of "plugins/AntiBuild/messages.yml"
+	set {build-disabled-self} to single value "messages.build-disabled-self" get of "plugins/AntiBuild/messages.yml"
+	set {build-enabled-other} to single value "messages.build-enabled-other" get of "plugins/AntiBuild/messages.yml"
+	set {build-disabled-other} to single value "messages.build-disabled-other" get of "plugins/AntiBuild/messages.yml"
+	set {world-is-disabled} to single value "messages.world-is-disabled" get of "plugins/AntiBuild/messages.yml"
+	replace all "&" with "§" in {prefix}
+	replace all "&" with "§" in {no-permission}
+	replace all "&" with "§" in {only-players}
+	replace all "&" with "§" in {never-seen-before}
+	replace all "&" with "§" in {value-updated}
+	replace all "&" with "§" in {reload-command-disabled}
+	replace all "&" with "§" in {reload-complete}
+	replace all "&" with "§" in {chat-update}
+	replace all "&" with "§" in {build-enabled-self}
+	replace all "&" with "§" in {build-disabled-self}
+	replace all "&" with "§" in {build-enabled-other}
+	replace all "&" with "§" in {build-disabled-other}
+	replace all "&" with "§" in {gui-name}
+	if {config-seen} is "false":
+		loop all players:
+			if loop-player has permission "antibuild.notify":
+				send "%{prefix}% &cPlease open the &4configuration file &cto configure the skript and to disable this message!" to loop-player
+				send "%{prefix}% &4Or use &c/build menu" to loop-player
+
+on place:
+	if {disabledworlds::*} doesn't contain player's world:
+		if {build::%player%} is true:
+			stop
+		else:
+			cancel event
+
+on break:
+	if {disabledworlds::*} doesn't contain player's world:
+		if {build::%player%} is true:
+			stop
+		else:
+			cancel event
+
+on inventory click:
+	if inventory name of player's current inventory is "%{gui-name}%":
+		cancel event
+		if name of clicked item is "&8» &eToggle buildmode &8| &7Leftclick":
+			make player execute command "build"
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 1
+			if {build::%player%} is true:
+				set slot 11 of player's current inventory to diamond pickaxe of unbreaking 1 without any NBT named "&8» &eToggle buildmode &8| &7Leftclick" with lore "&a||&eStatus&6: &aEnabled||&a"
+			else:
+				set slot 11 of player's current inventory to diamond pickaxe named "&8» &eToggle buildmode &8| &7Leftclick" with lore "&a||&eStatus&6: &cDisabled||&a"
+			stop
+		else if name of clicked item is "&8» &eSettings &8| &7Leftclick":
+			close player's inventory
+			wait a tick
+			open chest with 4 rows named "%{gui-name}%" to player
+			wait a tick
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 1
+			set {_loop} to 27
+			loop 9 times:
+				set slot {_loop} of player's current inventory to {menu-background-item} parsed as item named "&8-&7/&8-"
+				add 1 to {_loop}
+			set slot 31 of player's current inventory to {menu-back-item} parsed as item named "&8» &cBack"
+			set slot 0 of player's current inventory to sign named "&8» &eMain"
+			set slot 9 of player's current inventory to sign named "&8» &ePermissions"
+			set slot 18 of player's current inventory to sign named "&8» &eMenu"
+			set slot 10 of player's current inventory to redstone named "&eBuild self perm." with lore "&eValue&6: &e%{build-permission}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+			set slot 11 of player's current inventory to redstone named "&eBuild others perm." with lore "&eValue&6: &e%{build-permission-others}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+			set slot 12 of player's current inventory to redstone named "&eBuild reload perm." with lore "&eValue&6: &e%{build-reload-permission}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+			set slot 13 of player's current inventory to redstone named "&eBuild menu perm." with lore "&eValue&6: &e%{build-menu-permission}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+			set slot 14 of player's current inventory to redstone named "&eBuild help perm." with lore "&eValue&6: &e%{build-help-permission}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+			set slot 1 of player's current inventory to paper named "&ePrefix" with lore "&eValue&6: &r%{prefix}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||"
+			if {checkforupdates} is "true":
+				set slot 2 of player's current inventory to paper of unbreaking 1 without any NBT named "&eCheck for updates" with lore "&eValue&6: &aenabled"
+			else:
+				set slot 2 of player's current inventory to paper named "&eCheck for updates" with lore "&eValue&6: &cdisabled"
+			if {autoupdate} is "true":
+				set slot 3 of player's current inventory to paper of unbreaking 1 without any NBT named "&eAutoupdater" with lore "&eValue&6: &aenabled"
+			else:
+				set slot 3 of player's current inventory to paper named "&eAutoupdater" with lore "&eValue&6: &cdisabled"
+			if {reload-command-disabled} is "true":
+				set slot 4 of player's current inventory to paper of unbreaking 1 without any NBT named "&eReload command" with lore "&eValue&6: &aenabled"
+			else:
+				set slot 4 of player's current inventory to paper named "&eReload command" with lore "&eValue&6: &cdisabled"
+			if {config-seen} is "true":
+				set slot 5 of player's current inventory to paper of unbreaking 1 without any NBT named "&eConfig seen" with lore "&eValue&6: &aenabled"
+			else:
+				set slot 5 of player's current inventory to paper named "&eConfig seen" with lore "&eValue&6: &cdisabled"
+			if {menu-enabled} is "true":
+				set slot 19 of player's current inventory to slime of unbreaking 1 without any NBT named "&eEnable menu" with lore "&eValue&6: &aenabled"
+			else:
+				set slot 19 of player's current inventory to slime named "&eEnable menu" with lore "&eValue&6: &cdisabled"
+			if {menu-sounds} is "true":
+				set slot 20 of player's current inventory to slime of unbreaking 1 without any NBT named "&eSounds" with lore "&eValue&6: &aenabled"
+			else:
+				set slot 20 of player's current inventory to slime named "&eSounds" with lore "&eValue&6: &cdisabled"
+			if {high-pitch} is "true":
+				set slot 21 of player's current inventory to slime of unbreaking 1 without any NBT named "&eHigh pitch" with lore "&eValue&6: &aenabled"
+			else:
+				set slot 21 of player's current inventory to slime named "&eHigh pitch" with lore "&eValue&6: &cdisabled"
+			stop
+		else if name of clicked item is "&8» &cBack":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			close player's inventory
+			wait a tick
+			make player execute command "build menu"
+			stop
+		else if name of clicked item is "&ePrefix":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if "%click type%" contains "LEFT":
+				set {antibuild::chatblocker::%player%} to true
+				send "%{prefix}% %{chat-update}%"
+				close player's inventory
+				wait 20 seconds
+				delete {antibuild::chatblocker::%player%}
+				stop
+			else if "%click type%" contains "RIGHT":
+				set "config.main.prefix" to "&8 ● &cAnti&4Build &8»" in yaml file "plugins/AntiBuild/config.yml"
+				set {prefix} to single value "config.main.prefix" get of "plugins/AntiBuild/config.yml"
+				replace all "&" in {prefix} with "§"
+				send "%{prefix}% %{value-updated}%"
+				set slot 1 of player's current inventory to paper named "&ePrefix" with lore "&eValue&6: &r%{prefix}%||&a||&7&o(Leftclick = Toggle)||&7&o(Rightclick = Default)||"
+				stop
+		else if name of clicked item is "&eCheck for updates":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if {checkforupdates} is "true":
+				set slot 2 of player's current inventory to paper named "&eCheck for updates" with lore "&eValue&6: &cdisabled"
+				set "config.main.checkforupdates" to "false" in yaml file "plugins/AntiBuild/config.yml"
+				set {checkforupdates} to single value "config.main.checkforupdates" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			else:
+				set slot 2 of player's current inventory to paper of unbreaking 1 without any NBT named "&eCheck for updates" with lore "&eValue&6: &aenabled"
+				set "config.main.checkforupdates" to "true" in yaml file "plugins/AntiBuild/config.yml"
+				set {checkforupdates} to single value "config.main.checkforupdates" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			stop
+		else if name of clicked item is "&eAutoupdater":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if {autoupdate} is "true":
+				set slot 3 of player's current inventory to paper named "&eAutoupdater" with lore "&eValue&6: &cdisabled"
+				set "config.main.autoupdate" to "false" in yaml file "plugins/AntiBuild/config.yml"
+				set {autoupdate} to single value "config.main.autoupdate" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			else:
+				set slot 3 of player's current inventory to paper of unbreaking 1 without any NBT named "&eAutoupdater" with lore "&eValue&6: &aenabled"
+				set "config.main.autoupdate" to "true" in yaml file "plugins/AntiBuild/config.yml"
+				set {autoupdate} to single value "config.main.autoupdate" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+		else if name of clicked item is "&eReload command":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if {enable-reload-command} is "true":
+				set slot 4 of player's current inventory to paper named "&eReload command" with lore "&eValue&6: &cdisabled"
+				set "config.main.enable-reload-command" to "false" in yaml file "plugins/AntiBuild/config.yml"
+				set {enable-reload-command} to single value "config.main.enable-reload-command" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			else:
+				set slot 4 of player's current inventory to paper of unbreaking 1 without any NBT named "&eReload command" with lore "&eValue&6: &aenabled"
+				set "config.main.enable-reload-command" to "true" in yaml file "plugins/AntiBuild/config.yml"
+				set {enable-reload-command} to single value "config.main.enable-reload-command" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			stop
+		else if name of clicked item is "&eConfig seen":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if {config-seen} is "true":
+				set slot 5 of player's current inventory to paper named "&eConfig seen" with lore "&eValue&6: &cdisabled"
+				set "config.main.config-seen" to "false" in yaml file "plugins/AntiBuild/config.yml"
+				set {config-seen} to single value "config.main.config-seen" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			else:
+				set slot 5 of player's current inventory to paper of unbreaking 1 without any NBT named "&eConfig seen" with lore "&eValue&6: &aenabled"
+				set "config.main.config-seen" to "true" in yaml file "plugins/AntiBuild/config.yml"
+				set {config-seen} to single value "config.main.config-seen" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			stop
+		else if name of clicked item is "&eEnable menu":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if {menu-enabled} is "true":
+				set slot 19 of player's current inventory to slime named "&eEnable menu" with lore "&eValue&6: &cdisabled"
+				set "config.menu.menu-enabled" to "false" in yaml file "plugins/AntiBuild/config.yml"
+				set {menu-enabled} to single value "config.menu.menu-enabled" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			else:
+				set slot 19 of player's current inventory to slime of unbreaking 1 without any NBT named "&eEnable menu" with lore "&eValue&6: &aenabled"
+				set "config.menu.menu-enabled" to "true" in yaml file "plugins/AntiBuild/config.yml"
+				set {menu-enabled} to single value "config.menu.menu-enabled" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			stop
+		else if name of clicked item is "&eSounds":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if {menu-sounds} is "true":
+				set slot 20 of player's current inventory to slime named "&eSounds" with lore "&eValue&6: &cdisabled"
+				set "config.menu.menu-sounds.enabled" to "false" in yaml file "plugins/AntiBuild/config.yml"
+				set {menu-sounds} to single value "config.menu.menu-sounds.enabled" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			else:
+				set slot 20 of player's current inventory to slime of unbreaking 1 without any NBT named "&eSounds" with lore "&eValue&6: &aenabled"
+				set "config.menu.sounds.enabled" to "true" in yaml file "plugins/AntiBuild/config.yml"
+				set {menu-sounds} to single value "config.menu.sounds.enabled" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			stop
+		else if name of clicked item is "&eHigh pitch":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if {high-pitch} is "true":
+				set slot 21 of player's current inventory to slime named "&eHigh pitch" with lore "&eValue&6: &cdisabled"
+				set "config.menu.menu-sounds.high-pitch" to "false" in yaml file "plugins/AntiBuild/config.yml"
+				set {high-pitch} to single value "config.menu.menu-sounds.high-pitch" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			else:
+				set slot 21 of player's current inventory to slime of unbreaking 1 without any NBT named "&eHigh pitch" with lore "&eValue&6: &aenabled"
+				set "config.menu.menu-sounds.high-pitch" to "true" in yaml file "plugins/AntiBuild/config.yml"
+				set {high-pitch} to single value "config.menu.menu-sounds.high-pitch" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+			stop
+		else if name of clicked item is "&8» &aDisabled worlds:":
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if "%click type%" contains "LEFT":
+				set {antibuild::chatblocker::worlds::%player%} to true
+				set {antibuild::chatblocker::click::%player%} to "LEFT"
+				send "%{prefix}% %{chat-update}%"
+				close player's inventory
+				wait 20 seconds
+				delete {antibuild::chatblocker::worlds::%player%}
+				delete {antibuild::chatblocker::click::%player%}
+			else if "%click type%" contains "RIGHT":
+				set {antibuild::chatblocker::worlds::%player%} to true
+				set {antibuild::chatblocker::click::%player%} to "RIGHT"
+				send "%{prefix}% %{chat-update}%"
+				close player's inventory
+				wait 20 seconds
+				delete {antibuild::chatblocker::worlds::%player%}
+				delete {antibuild::chatblocker::click::%player%}
+			stop
+		else if name of clicked item is "&eBuild self perm.":
+			set {permtype::%player%} to "build-permission"
+			set {_perm} to "antibuild.build"
+			set {_name} to "&eBuild self perm."
+			set {_slot} to 10
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if "%click type%" contains "LEFT":
+				set {antibuild::chatblocker::perm::%player%} to true
+				send "%{prefix}% %{chat-update}%"
+				close player's inventory
+				wait 20 seconds
+				delete {antibuild::chatblocker::perm::%player%}
+				delete {permtype::%player%}
+				stop
+			else if "%click type%" contains "RIGHT":
+				set "config.permissions.%{permtype::%player%}%" to "%{_perm}%" in yaml file "plugins/AntiBuild/config.yml"
+				set {%{permtype::%player%}%} to single value "config.permissions.%{permtype::%player%}%" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+				set slot {_slot} of player's current inventory to redstone named "%{_name}%" with lore "&eValue&6: &e%{%{permtype::%player%}%}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+				delete {permtype::%player%}
+				stop
+		else if name of clicked item is "&eBuild others perm.":
+			set {permtype::%player%} to "build-permission-others"
+			set {_perm} to "antibuild.build.others"
+			set {_name} to "&eBuild others perm."
+			set {_slot} to 11
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if "%click type%" contains "LEFT":
+				set {antibuild::chatblocker::perm::%player%} to true
+				send "%{prefix}% %{chat-update}%"
+				close player's inventory
+				wait 20 seconds
+				delete {antibuild::chatblocker::perm::%player%}
+				delete {permtype::%player%}
+				stop
+			else if "%click type%" contains "RIGHT":
+				set "config.permissions.%{permtype::%player%}%" to "%{_perm}%" in yaml file "plugins/AntiBuild/config.yml"
+				set {%{permtype::%player%}%} to single value "config.permissions.%{permtype::%player%}%" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+				set slot {_slot} of player's current inventory to redstone named "%{_name}%" with lore "&eValue&6: &e%{%{permtype::%player%}%}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+				delete {permtype::%player%}
+				stop
+		else if name of clicked item is "&eBuild reload perm.":
+			set {permtype::%player%} to "build-reload-permission"
+			set {_perm} to "antibuild.build.reload"
+			set {_name} to "&eBuild reload perm."
+			set {_slot} to 12
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if "%click type%" contains "LEFT":
+				set {antibuild::chatblocker::perm::%player%} to true
+				send "%{prefix}% %{chat-update}%"
+				close player's inventory
+				wait 20 seconds
+				delete {antibuild::chatblocker::perm::%player%}
+				delete {permtype::%player%}
+				stop
+			else if "%click type%" contains "RIGHT":
+				set "config.permissions.%{permtype::%player%}%" to "%{_perm}%" in yaml file "plugins/AntiBuild/config.yml"
+				set {%{permtype::%player%}%} to single value "config.permissions.%{permtype::%player%}%" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+				set slot {_slot} of player's current inventory to redstone named "%{_name}%" with lore "&eValue&6: &e%{%{permtype::%player%}%}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+				delete {permtype::%player%}
+				stop
+		else if name of clicked item is "&eBuild menu perm.":
+			set {permtype::%player%} to "build-menu-permission"
+			set {_perm} to "antibuild.build.menu"
+			set {_name} to "&eBuild menu perm."
+			set {_slot} to 13
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if "%click type%" contains "LEFT":
+				set {antibuild::chatblocker::perm::%player%} to true
+				send "%{prefix}% %{chat-update}%"
+				close player's inventory
+				wait 20 seconds
+				delete {antibuild::chatblocker::perm::%player%}
+				delete {permtype::%player%}
+				stop
+			else if "%click type%" contains "RIGHT":
+				set "config.permissions.%{permtype::%player%}%" to "%{_perm}%" in yaml file "plugins/AntiBuild/config.yml"
+				set {%{permtype::%player%}%} to single value "config.permissions.%{permtype::%player%}%" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+				set slot {_slot} of player's current inventory to redstone named "%{_name}%" with lore "&eValue&6: &e%{%{permtype::%player%}%}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+				delete {permtype::%player%}
+				stop
+		else if name of clicked item is "&eBuild help perm.":
+			set {permtype::%player%} to "build-help-permission"
+			set {_perm} to "antibuild.build.help"
+			set {_name} to "&eBuild help perm."
+			set {_slot} to 14
+			if {menu-sounds} is "true":
+				if {high-pitch} is "true":
+					play sound "CLICK" to player with volume 100 and pitch 15
+				else:
+					play sound "CLICK" to player with volume 100 and pitch 15
+			if "%click type%" contains "LEFT":
+				set {antibuild::chatblocker::perm::%player%} to true
+				send "%{prefix}% %{chat-update}%"
+				close player's inventory
+				wait 20 seconds
+				delete {antibuild::chatblocker::perm::%player%}
+				delete {permtype::%player%}
+				stop
+			else if "%click type%" contains "RIGHT":
+				set "config.permissions.%{permtype::%player%}%" to "%{_perm}%" in yaml file "plugins/AntiBuild/config.yml"
+				set {%{permtype::%player%}%} to single value "config.permissions.%{permtype::%player%}%" get of "plugins/AntiBuild/config.yml"
+				send "%{prefix}% %{value-updated}%"
+				set slot {_slot} of player's current inventory to redstone named "%{_name}%" with lore "&eValue&6: &e%{%{permtype::%player%}%}%||&a||&7&o(Leftclick = Set own value)||&7&o(Rightclick = Set default)||&a"
+				delete {permtype::%player%}
+				stop
+
+
+on chat:
+	if {antibuild::chatblocker::%player%} is true:
+		cancel event
+		if {menu-sounds} is "true":
+			if {high-pitch} is "true":
+				play sound "ENDERDRAGON_WINGS" to player with volume 100 and pitch 15
+			else:
+				play sound "ENDERDRAGON_WINGS" to player with volume 100 and pitch 1
+		file existance of "plugins/AntiBuild/config.yml" is false:
+			send "§4ERROR: §cCouldn't find file config.yml!" to CONSOLE
+			send "§eCreating file config.yml..." to CONSOLE
+			create file "plugins/AntiBuild/config.yml"
+			send "§aThe file &2config&a.&2yml &awas sucessfully created :D" to CONSOLE
+		set {_x} to message
+		replace all "&" with "§" in {_x}
+		set "config.main.prefix" to "%{_x}%" in yaml file "plugins/AntiBuild/config.yml"
+		set {prefix} to single value "config.main.prefix" get of "plugins/AntiBuild/config.yml"
+		send "%{prefix}% %{value-updated}%"
+		delete {antibuild::chatblocker::%player%}
+		stop
+	else if {antibuild::chatblocker::perm::%player%} is true:
+		cancel event
+		if {menu-sounds} is "true":
+			if {high-pitch} is "true":
+				play sound "ENDERDRAGON_WINGS" to player with volume 100 and pitch 15
+			else:
+				play sound "ENDERDRAGON_WINGS" to player with volume 100 and pitch 1
+		file existance of "plugins/AntiBuild/config.yml" is false:
+			send "§4ERROR: §cCouldn't find file config.yml!" to CONSOLE
+			send "§eCreating file config.yml..." to CONSOLE
+			create file "plugins/AntiBuild/config.yml"
+			send "§aThe file &2config&a.&2yml &awas sucessfully created :D" to CONSOLE
+		set "config.permissions.%{permtype::%player%}%" to "%message%" in yaml file "plugins/AntiBuild/config.yml"
+		set {%{permtype::%player%}%} to single value "config.permissions.%{permtype::%player%}%" get of "plugins/AntiBuild/config.yml"
+		send "%{prefix}% %{value-updated}%"
+		delete {permtype::%player%}
+		delete {antibuild::chatblocker::perm1::%player%}
+		stop
+	else if {antibuild::chatblocker::worlds::%player%} is true:
+		cancel event
+		if {menu-sounds} is "true":
+			if {high-pitch} is "true":
+				play sound "ENDERDRAGON_WINGS" to player with volume 100 and pitch 15
+			else:
+				play sound "ENDERDRAGON_WINGS" to player with volume 100 and pitch 1
+		if message contains " ":
+			send "%{prefix}% &4ERROR: &cDo not use spaces!"
+			delete {antibuild::chatblocker::worlds::%player%}
+		else:
+			if {antibuild::chatblocker::click::%player%} is "LEFT":
+				add "%message%" to {disabledworlds::*}
+				send "%{prefix}% %{value-updated}%"
+				delete {antibuild::chatblocker::worlds::%player%}
+				delete {antibuild::chatblocker::click::%player%}
+			else if {antibuild::chatblocker::click::%player%} is "RIGHT":
+				remove message from {disabledworlds::*}
+				send "%{prefix}% %{value-updated}%"
+				delete {antibuild::chatblocker::worlds::%player%}
+				delete {antibuild::chatblocker::click::%player%}
+
+
+on quit:
+	if {antibuild::chatblocker::%player%} is true:
+		delete {antibuild::chatblocker::%player%}
+
+command /build [<offline player>]:
+	aliases: buildmode
+	trigger:
+		if arg-1 is "info":
+			send ""
+			send "&8» &4Plugin/skript made by &8● &cGemsMC aka. Ronnoc2w"
+			send "&8» &4Version &8● &c%{version}%"
+			send "&8» &4Downloaded on &8●&c https://spigotmc.org/resources/advanced-antibuild-skript.74987/"
+			send ""
+			stop
+		if arg-1 is "menu" or "settings":
+			if sender is not CONSOLE:
+				if {menu-enabled} is "true":
+					if {menu-sounds} is "true":
+						if {high-pitch} is "true":
+							play sound "CHEST_OPEN" to player with volume 100 and pitch 15
+						else:
+							play sound "CHEST_OPEN" to player with volume 100 and pitch 1
+					open chest with 3 rows named "%{gui-name}%" to sender
+					wait a tick
+					set {_loop} to 0
+					loop 27 times:
+						set slot {_loop} of player's current inventory to {menu-background-item} parsed as item named "&8-&7/&8-"
+						add 1 to {_loop}
+					delete {_loop}
+					if {build::%player%} is true:
+						set slot 11 of player's current inventory to diamond pickaxe of unbreaking 1 without any NBT named "&8» &eToggle buildmode &8| &7Leftclick" with lore "&a||&eStatus&6: &aEnabled||&a"
+					else:
+						set slot 11 of player's current inventory to diamond pickaxe named "&8» &eToggle buildmode &8| &7Leftclick" with lore "&a||&eStatus&6: &cDisabled||&a"
+					set slot 13 of player's current inventory to grass block named "&8» &aDisabled worlds:" with lore "&a||&2%{disabledworlds::*}%||&a||&7Leftclick to add world||&7Rightclick to remove world"
+					set slot 15 of player's current inventory to paper named "&8» &eSettings &8| &7Leftclick"
+					stop
+			else:
+				send "%{only-players}%"
+				stop
+		if arg-1 is "help":
+			if sender has permission "%{build-help-permission}%":
+				send "%{prefix}% &4AntiBuild &cplugin help&4:"
+				send ""
+				send "&8» &4/build"
+				send "&8» &7Toggles own build mode"
+				send "&8» &c%{build-permission}%"
+				send ""
+				send "&8» &4/build &c<&4player&c>"
+				send "&8» &7Toggles others build mode"
+				send "&8» &c%{build-permission-others}%"
+				send ""
+				send "&8» &4/build &creload"
+				send "&8» &7Reloads the plugin/skript"
+				send "&8» &c%{build-reload-permission}%"
+				send ""
+				send "&8» &4/build &cmenu"
+				send "&8» &7Opens antibuild menu"
+				send "&8» &c%{build-menu-permission}%"
+				send ""
+				send "&8» &4/build &cinfo"
+				send "&8» &7Shows plugin info"
+				send "&8» &cno permission"
+				send ""
+				send "&8» &4/build &chelp"
+				send "&8» &7Toggles own build mode"
+				send "&8» &c%{build-help-permission}%"
+				send ""
+			else:
+				send "%{prefix}% %{no-permission}%"
+				stop
+		else:
+			if {disabledworlds::*} doesn't contain player's world:
+				if sender has permission "%{build-permission}%":
+					if arg-1 is not set:
+						if sender is not CONSOLE:
+							if {build::%sender%} is true:
+								delete {build::%sender%}
+								send "%{prefix}% %{build-disabled-self}%"
+								stop
+							else:
+								set {build::%sender%} to true
+								send "%{prefix}% %{build-enabled-self}%"
+								stop
+						else:
+							send "%{only-players}%"
+							stop
+					else:
+						if arg-1 is "reload" or "rl":
+							if {enable-reload-command} is "true":
+								if sender has permission "%{build-reload-permission}%":
+									file existance of "plugins/Skript/scripts/antibuild-%{version}%.sk" is true:
+										make player execute command "skript reload antibuild-%{version}%.sk"
+										send "%{prefix}% %{reload-complete}%"
+										stop
+									else:
+										send "%{prefix}% &4ERROR&c: &4File not found!"
+								else:
+									send "%{prefix}% %{no-permission}%"
+									stop
+							else:
+								send "%{prefix}% %{reload-command-disabled}%"
+								stop
+						else:
+							if sender has permission "%{build-permission-others}%":
+								if arg-1 has played before:
+									set {_p} to arg-1
+									replace all "{_p}" with "%arg-1%" in {build-disabled-other}
+									replace all "{_p}" with "%arg-1%" in {build-enabled-other}
+									if {build::%arg-1%} is true:
+										delete {build::%arg-1%}
+										send "%{prefix}% %{build-disabled-other}%"
+										send "%{prefix}% %{build-disabled-self}%" to arg-1
+										stop
+									else:
+										set {build::%arg-1%} to true
+										send "%{prefix}% %{build-enabled-other}%"
+										send "%{prefix}% %{build-enabled-self}%" to arg-1
+										stop
+								else:
+									set {_p} to arg-1
+									send "%{prefix}% %{never-seen-before}%"
+									stop
+							else:
+								send "%{prefix}% %{no-permission}%"
+								stop
+				else:
+					send "%{prefix}% %{no-permission}%"
+					stop
+			else:
+				send "%{prefix}% %{world-is-disabled}%"
+				stop
